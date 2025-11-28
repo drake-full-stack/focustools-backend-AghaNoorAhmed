@@ -30,16 +30,83 @@ app.get("/", (req, res) => {
   });
 });
 
-// TODO: Add your Task routes here
-// POST /api/tasks
-// GET /api/tasks
-// GET /api/tasks/:id
-// PUT /api/tasks/:id
-// DELETE /api/tasks/:id
+// ----- TASK ROUTES -----
 
-// TODO: Add your Session routes here
-// POST /api/sessions
-// GET /api/sessions
+// Create a task
+app.post("/api/tasks", async (req, res) => {
+  try {
+    const task = new Task(req.body);
+    const saved = await task.save();
+    res.json(saved);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Get all tasks
+app.get("/api/tasks", async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get single task by ID
+app.get("/api/tasks/:id", async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    res.json(task);
+  } catch (err) {
+    res.status(404).json({ error: "Task not found" });
+  }
+});
+
+// Update task by ID
+app.put("/api/tasks/:id", async (req, res) => {
+  try {
+    const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Delete task
+app.delete("/api/tasks/:id", async (req, res) => {
+  try {
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ message: "Task deleted" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+// ----- SESSION ROUTES -----
+
+// Create a session
+app.post("/api/sessions", async (req, res) => {
+  try {
+    const session = new Session(req.body);
+    const saved = await session.save();
+    res.json(saved);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Get all sessions
+app.get("/api/sessions", async (req, res) => {
+  try {
+    const sessions = await Session.find().populate("taskId");
+    res.json(sessions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
