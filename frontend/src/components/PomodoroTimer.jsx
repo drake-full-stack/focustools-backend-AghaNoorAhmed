@@ -1,101 +1,34 @@
-// frontend/src/components/PomodoroTimer.jsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from "react";
 
-function PomodoroTimer({ onComplete }) {
-  // For faster testing you can temporarily use 10 instead of 25 * 60
-  const WORK_TIME = 25 * 60;
-  const BREAK_TIME = 5 * 60;
-
-  const [timeLeft, setTimeLeft] = useState(WORK_TIME);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
-  const intervalRef = useRef(null);
+export default function PomodoroTimer() {
+  const [time, setTime] = useState(25 * 60);
+  const [running, setRunning] = useState(false);
 
   useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isRunning && timeLeft > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+    let timer = null;
+    if (running) {
+      timer = setInterval(() => {
+        setTime((t) => (t > 0 ? t - 1 : 0));
       }, 1000);
-    } else if (timeLeft === 0) {
-      handleTimerComplete();
     }
+    return () => clearInterval(timer);
+  }, [running]);
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isRunning, timeLeft]);
-
-  const handleTimerComplete = () => {
-    setIsRunning(false);
-
-    if (!isBreak) {
-      onComplete();
-      alert('🎉 Pomodoro complete! Take a break.');
-      setIsBreak(true);
-      setTimeLeft(BREAK_TIME);
-    } else {
-      alert('Break over! Ready for another Pomodoro?');
-      setIsBreak(false);
-      setTimeLeft(WORK_TIME);
-    }
-  };
-
-  const toggleTimer = () => {
-    setIsRunning(!isRunning);
-  };
-
-  const resetTimer = () => {
-    setIsRunning(false);
-    setIsBreak(false);
-    setTimeLeft(WORK_TIME);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`;
-  };
-
-  const total = isBreak ? BREAK_TIME : WORK_TIME;
-  const progress = ((total - timeLeft) / total) * 100;
+  function formatTime(t) {
+    const min = Math.floor(t / 60);
+    const sec = t % 60;
+    return `${min}:${sec.toString().padStart(2, "0")}`;
+  }
 
   return (
-    <div className={`pomodoro-timer ${isBreak ? 'break-mode' : 'work-mode'}`}>
-      <div className="timer-mode">
-        {isBreak ? '☕ Break Time' : '🍅 Focus Time'}
-      </div>
+    <div className="timer-container">
+      <h2>{formatTime(time)}</h2>
 
-      <div className="timer-display">{formatTime(timeLeft)}</div>
-
-      <div className="timer-controls">
-        <button onClick={toggleTimer} className="control-button primary">
-          {isRunning ? 'Pause' : 'Start'}
-        </button>
-        <button onClick={resetTimer} className="control-button secondary">
-          Reset
-        </button>
-      </div>
-
-      <div className="timer-progress">
-        <div className="progress-bar" style={{ width: `${progress}%` }} />
+      <div className="timer-buttons">
+        <button onClick={() => setRunning(true)}>Start</button>
+        <button onClick={() => setRunning(false)}>Pause</button>
+        <button onClick={() => setTime(25 * 60)}>Reset</button>
       </div>
     </div>
   );
 }
-
-export default PomodoroTimer;

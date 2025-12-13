@@ -1,27 +1,14 @@
-// frontend/src/components/TaskList.jsx
-import TaskItem from './TaskItem';
+import React from "react";
 
-function TaskList({ tasks, activeTask, onSelectTask, onToggleComplete, onDeleteTask }) {
-  if (tasks.length === 0) {
-    return (
-      <div className="empty-state">
-        <p>No tasks yet. Add one above to get started!</p>
-      </div>
-    );
-  }
-
+function TaskList({ tasks, refresh }) {
   return (
-    <div className="task-list">
-      {tasks.map((task) => (
-        <TaskItem
-          key={task._id}
-          task={task}
-          isActive={activeTask?._id === task._id}
-          onSelect={() => onSelectTask(task)}
-          onToggleComplete={() => onToggleComplete(task._id)}
-          onDelete={() => onDeleteTask(task._id)}
-        />
-      ))}
+    <div>
+      <h2>Tasks</h2>
+      <ul>
+        {tasks.map((task) => (
+          <li key={task._id}>{task.title}</li>
+        ))}
+      </ul>
     </div>
   );
 }
